@@ -1,19 +1,18 @@
 /**
- * Formatter
- * Transforms raw Google Calendar events into data ready for TRMNL.
+ * Builds the data structure consumed by the FamilyBoard TRMNL plugin.
  */
 class Formatter {
 
   /**
-   * Builds the complete FamilyBoard payload.
+   * Builds the complete FamilyBoard dashboard.
    *
-   * @param {Array<Object>} events Raw events from CalendarService.
+   * @param {Array<Object>} events Events returned by CalendarService.
    * @returns {Object}
    */
   static buildDashboard(events) {
     const normalizedEvents = events
       .map((event) => this.normalizeEvent(event))
-      .sort((a, b) => a.start.getTime() - b.start.getTime());
+      .sort((first, second) => first.start - second.start);
 
     return {
       generatedAt: new Date().toISOString(),
@@ -24,33 +23,33 @@ class Formatter {
   }
 
   /**
-   * Enriches one calendar event.
+   * Enriches a raw calendar event.
    *
    * @param {Object} event
    * @returns {Object}
    */
   static normalizeEvent(event) {
-    const person = this.resolvePerson(event.title);
-    const type = this.resolveEventType(event.title);
+    const person = PersonResolver.resolve(event.title);
+    const type = EventClassifier.resolve(event.title);
 
     return {
       id: event.id,
-      title: this.cleanTitle(event.title, person),
+      title: PersonResolver.cleanTitle(event.title, person),
       start: new Date(event.start),
       end: new Date(event.end),
       allDay: event.allDay,
-      multiDay: this.isMultiDay(event),
+      multiDay: DateUtils.isMultiDay(event.start, event.end),
       person: person,
-      personIcon: CONFIG.people[person].icon,
+      personIcon: PersonResolver.getIcon(person),
       type: type,
-      typeIcon: CONFIG.eventTypes[type] || CONFIG.eventTypes.generic || "",
+      typeIcon: CONFIG.eventTypes[type] || "",
       location: event.location || "",
       description: event.description || ""
     };
   }
 
   /**
-   * Returns multi-day events currently in progress.
+   * Builds the list of multi-day events currently in progress.
    *
    * @param {Array<Object>} events
    * @returns {Array<Object>}
@@ -65,10 +64,10 @@ class Formatter {
         event.end > now
       )
       .map((event) => {
-        const totalDays = this.countCalendarDays(event.start, event.end);
+        const totalDays = this.countDays(event.start, event.end);
         const currentDay = Math.min(
           totalDays,
-          this.countCalendarDays(event.start, now)
+          this.countDays(event.start, now)
         );
 
         return {
@@ -76,28 +75,28 @@ class Formatter {
           person: event.person,
           personIcon: event.personIcon,
           type: event.type,
-          typeIcon: event.typeIcon || CONFIG.eventTypes.camp,
+          typeIcon: event.typeIcon,
           progress: `J${currentDay}/${totalDays}`,
-          ends: this.formatWeekday(event.end)
+          ends: DateUtils.formatWeekday(event.end)
         };
       });
   }
 
   /**
-   * Builds the next days displayed in the main column.
+   * Builds the next configured calendar days.
    *
    * @param {Array<Object>} events
    * @returns {Array<Object>}
    */
   static buildDays(events) {
     const days = [];
-    const today = this.startOfDay(new Date());
+    const today = DateUtils.startOfDay(new Date());
 
     for (let offset = 0; offset < CONFIG.daysToDisplay; offset++) {
-      const date = this.addDays(today, offset);
-      const nextDate = this.addDays(date, 1);
+      const date = DateUtils.addDays(today, offset);
+      const nextDate = DateUtils.addDays(date, 1);
 
-      const dayEvents = events
+      const matchingEvents = events
         .filter((event) =>
           !event.multiDay &&
           event.start >= date &&
@@ -115,15 +114,14 @@ class Formatter {
           allDay: event.allDay,
           displayTime: event.allDay
             ? ""
-            : this.formatTime(event.start)
+            : DateUtils.formatTime(event.start)
         }));
 
-      if (CONFIG.showEmptyDays || dayEvents.length > 0) {
+      if (CONFIG.showEmptyDays || matchingEvents.length > 0) {
         days.push({
-          dateKey: this.formatDateKey(date),
-          label: this.getRelativeDayLabel(date, offset),
-          date: this.formatDayAndDate(date),
-          events: dayEvents
+          label: this.getDayLabel(date, offset),
+          date: DateUtils.formatDate(date),
+          events: matchingEvents
         });
       }
     }
@@ -132,32 +130,40 @@ class Formatter {
   }
 
   /**
-   * Builds a concise summary for the following calendar week.
+   * Builds a concise summary of the following calendar week.
    *
    * @param {Array<Object>} events
    * @returns {Object}
    */
   static buildNextWeek(events) {
-    const nextMonday = this.startOfNextWeek(new Date());
-    const followingMonday = this.addDays(nextMonday, 7);
+    const nextMonday = this.getNextMonday(new Date());
+    const followingMonday = DateUtils.addDays(nextMonday, 7);
 
     const nextWeekEvents = events.filter((event) =>
       event.start >= nextMonday &&
       event.start < followingMonday
     );
 
+    const highlightedTypes = [
+      EVENT_TYPE.BIRTHDAY,
+      EVENT_TYPE.CAMP,
+      EVENT_TYPE.HOLIDAY,
+      EVENT_TYPE.TRAVEL,
+      EVENT_TYPE.SCHOOL
+    ];
+
     const highlights = nextWeekEvents
       .filter((event) =>
         event.allDay ||
         event.multiDay ||
-        ["birthday", "camp", "holiday", "travel", "school"].includes(event.type)
+        highlightedTypes.includes(event.type)
       )
       .slice(0, 5)
       .map((event) => ({
         title: event.title,
+        day: DateUtils.formatWeekday(event.start),
         personIcon: event.personIcon,
-        icon: event.typeIcon || CONFIG.eventTypes.allDay,
-        day: this.formatWeekday(event.start)
+        icon: event.typeIcon || CONFIG.eventTypes.allDay
       }));
 
     return {
@@ -167,160 +173,13 @@ class Formatter {
   }
 
   /**
-   * Finds the family member mentioned in an event title.
+   * Returns the heading used for a displayed day.
    *
-   * @param {string} title
+   * @param {Date} date
+   * @param {number} offset
    * @returns {string}
    */
-  static resolvePerson(title) {
-    const normalizedTitle = this.normalizeText(title);
-
-    for (const personKey in CONFIG.people) {
-      const aliases = CONFIG.people[personKey].aliases || [];
-
-      if (aliases.some((alias) =>
-        normalizedTitle.includes(this.normalizeText(alias))
-      )) {
-        return personKey;
-      }
-    }
-
-    return "family";
-  }
-
-  /**
-   * Detects the event category from its title.
-   *
-   * @param {string} title
-   * @returns {string}
-   */
-  static resolveEventType(title) {
-    const value = this.normalizeText(title);
-
-    const rules = [
-      { type: "birthday", words: ["anniversaire", "birthday"] },
-      { type: "camp", words: ["camp", "colonie"] },
-      { type: "holiday", words: ["vacances", "conge", "ferie"] },
-      { type: "travel", words: ["voyage", "vol", "train", "depart"] },
-      { type: "school", words: ["ecole", "rentree", "classe"] },
-      {
-        type: "sport",
-        words: ["football", "foot", "tennis", "natation", "sport"]
-      },
-      {
-        type: "medical",
-        words: ["medecin", "dentiste", "orthodontiste", "hopital"]
-      }
-    ];
-
-    const match = rules.find((rule) =>
-      rule.words.some((word) => value.includes(word))
-    );
-
-    return match ? match.type : "generic";
-  }
-
-  /**
-   * Removes the person's alias from the displayed title.
-   *
-   * @param {string} title
-   * @param {string} personKey
-   * @returns {string}
-   */
-  static cleanTitle(title, personKey) {
-    let cleaned = title.trim();
-    const aliases = CONFIG.people[personKey].aliases || [];
-
-    aliases.forEach((alias) => {
-      const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-      cleaned = cleaned.replace(
-        new RegExp(
-          `^\\s*(\\[${escapedAlias}\\]|${escapedAlias})\\s*[-:–—]?\\s*`,
-          "i"
-        ),
-        ""
-      );
-    });
-
-    return cleaned || title.trim();
-  }
-
-  static isMultiDay(event) {
-    const start = this.startOfDay(new Date(event.start));
-    const end = this.startOfDay(new Date(event.end));
-
-    return end.getTime() - start.getTime() > 24 * 60 * 60 * 1000;
-  }
-
-  static countCalendarDays(start, end) {
-    const startDay = this.startOfDay(new Date(start));
-    const endDay = this.startOfDay(new Date(end));
-    const difference = endDay.getTime() - startDay.getTime();
-
-    return Math.max(
-      1,
-      Math.ceil(difference / (24 * 60 * 60 * 1000))
-    );
-  }
-
-  static startOfDay(date) {
-    const result = new Date(date);
-    result.setHours(0, 0, 0, 0);
-    return result;
-  }
-
-  static addDays(date, numberOfDays) {
-    const result = new Date(date);
-    result.setDate(result.getDate() + numberOfDays);
-    return result;
-  }
-
-  static startOfNextWeek(date) {
-    const result = this.startOfDay(date);
-    const day = result.getDay();
-    const daysUntilMonday = day === 0 ? 1 : 8 - day;
-
-    return this.addDays(result, daysUntilMonday);
-  }
-
-  static formatTime(date) {
-    return Utilities.formatDate(
-      date,
-      CONFIG.timeZone,
-      "HH:mm"
-    );
-  }
-
-  static formatDateKey(date) {
-    return Utilities.formatDate(
-      date,
-      CONFIG.timeZone,
-      "yyyy-MM-dd"
-    );
-  }
-
-  static formatWeekday(date) {
-    const value = date.toLocaleDateString(CONFIG.locale, {
-      weekday: "long",
-      timeZone: CONFIG.timeZone
-    });
-
-    return this.capitalize(value);
-  }
-
-  static formatDayAndDate(date) {
-    const value = date.toLocaleDateString(CONFIG.locale, {
-      weekday: "long",
-      day: "numeric",
-      month: "short",
-      timeZone: CONFIG.timeZone
-    });
-
-    return this.capitalize(value.replace(".", ""));
-  }
-
-  static getRelativeDayLabel(date, offset) {
+  static getDayLabel(date, offset) {
     if (offset === 0) {
       return "Aujourd’hui";
     }
@@ -329,17 +188,40 @@ class Formatter {
       return "Demain";
     }
 
-    return this.formatWeekday(date);
+    return DateUtils.formatWeekday(date);
   }
 
-  static normalizeText(value) {
-    return String(value || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
+  /**
+   * Returns the first Monday after the current week.
+   *
+   * @param {Date} date
+   * @returns {Date}
+   */
+  static getNextMonday(date) {
+    const currentDay = DateUtils.startOfDay(date);
+    const weekday = currentDay.getDay();
+    const daysUntilMonday = weekday === 0 ? 1 : 8 - weekday;
+
+    return DateUtils.addDays(currentDay, daysUntilMonday);
   }
 
-  static capitalize(value) {
-    return value.charAt(0).toUpperCase() + value.slice(1);
+  /**
+   * Counts calendar days between two dates.
+   *
+   * Google Calendar uses an exclusive end date for all-day events.
+   *
+   * @param {Date} start
+   * @param {Date} end
+   * @returns {number}
+   */
+  static countDays(start, end) {
+    const startDay = DateUtils.startOfDay(start);
+    const endDay = DateUtils.startOfDay(end);
+    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+    return Math.max(
+      1,
+      Math.ceil((endDay - startDay) / millisecondsPerDay)
+    );
   }
 }
