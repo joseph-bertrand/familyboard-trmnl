@@ -6,10 +6,10 @@ class CalendarService {
 
   /**
    * Returns upcoming events.
+   *
    * @returns {Array<Object>}
    */
   static getUpcomingEvents() {
-
     const calendar = CalendarApp.getCalendarById(CONFIG.calendarId);
 
     if (!calendar) {
@@ -17,30 +17,19 @@ class CalendarService {
     }
 
     const now = new Date();
-
-    const end = new Date();
-    end.setDate(end.getDate() + 12);
+    const end = new Date(now);
+    end.setDate(end.getDate() + 14);
 
     const events = calendar.getEvents(now, end);
 
-    return events.map(event => ({
-
+    return events.map((event) => ({
       id: event.getId(),
-
-      title: event.getTitle(),
-
+      title: event.getTitle().trim(),
       start: event.getStartTime(),
-
       end: event.getEndTime(),
-
       allDay: event.isAllDayEvent(),
-
-      location: event.getLocation(),
-
-      description: event.getDescription()
-
+      location: event.getLocation() || "",
+      description: event.getDescription() || ""
     }));
-
   }
-
 }
