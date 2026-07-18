@@ -19,14 +19,7 @@ function doGet() {
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
-function doGet() {
-  const events = CalendarService.getUpcomingEvents();
-  const dashboard = Formatter.buildDashboard(events);
 
-  return ContentService
-    .createTextOutput(JSON.stringify(dashboard, null, 2))
-    .setMimeType(ContentService.MimeType.JSON);
-}
 
 function pushDashboardToTrmnl() {
   const webhookUrl = PropertiesService
