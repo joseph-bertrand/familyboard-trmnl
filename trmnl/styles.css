@@ -1,6 +1,6 @@
 .familyboard {
   display: grid;
-  grid-template-columns: 68% 32%;
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
   width: 100%;
   height: 100%;
   gap: 12px;
@@ -62,7 +62,7 @@
 
 .event {
   display: grid;
-  grid-template-columns: 52px 28px minmax(0, 1fr) 24px;
+  grid-template-columns: 56px 28px minmax(0, 1fr) 24px;
   align-items: center;
   min-height: 24px;
   font-size: 17px;
@@ -70,6 +70,7 @@
 }
 
 .event__time {
+  padding-left: 2px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -138,12 +139,12 @@
 
 .highlight {
   display: grid;
-  grid-template-columns: 62px 24px 24px minmax(0, 1fr);
+  grid-template-columns: 58px 22px 22px minmax(0, 1fr);
   align-items: center;
-  min-height: 28px;
+  min-height: 34px;
   border-bottom: 1px solid #000;
-  font-size: 15px;
-  line-height: 1.15;
+  font-size: 14px;
+  line-height: 1.1;
 }
 
 .highlight:last-child {
@@ -160,10 +161,11 @@
 }
 
 .highlight__title {
-  overflow: hidden;
+  overflow: visible;
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.1;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .title_bar .instance {
