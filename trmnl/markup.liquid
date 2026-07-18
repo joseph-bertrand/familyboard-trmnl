@@ -1,3 +1,182 @@
+<style>
+  .familyboard {
+    display: grid;
+    grid-template-columns: 68% 32%;
+    width: 100%;
+    height: 100%;
+    gap: 12px;
+  }
+
+  .familyboard__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .familyboard__sidebar {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 12px;
+    border-left: 2px solid #000;
+    padding-left: 12px;
+  }
+
+  .day {
+    flex: 1;
+    min-height: 0;
+    border-bottom: 1px solid #000;
+    padding-bottom: 5px;
+  }
+
+  .day:last-child {
+    border-bottom: 0;
+  }
+
+  .day__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 3px;
+  }
+
+  .day__label {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .day__date {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .day__events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .event {
+    display: grid;
+    grid-template-columns: 56px 28px minmax(0, 1fr) 24px;
+    align-items: center;
+    min-height: 24px;
+    font-size: 17px;
+    line-height: 1.15;
+  }
+
+  .event__time {
+    padding-left: 2px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .event__person,
+  .event__icon {
+    text-align: center;
+  }
+
+  .event__title {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .panel {
+    min-height: 0;
+  }
+
+  .panel--ongoing {
+    flex: 0 0 auto;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #000;
+  }
+
+  .panel--next-week {
+    flex: 1;
+  }
+
+  .panel__title {
+    margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .panel__empty {
+    font-size: 15px;
+    font-style: italic;
+  }
+
+  .ongoing-event {
+    margin-bottom: 9px;
+  }
+
+  .ongoing-event:last-child {
+    margin-bottom: 0;
+  }
+
+  .ongoing-event__title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .ongoing-event__meta {
+    margin-top: 3px;
+    padding-left: 4px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .highlight {
+    display: grid;
+    grid-template-columns: 62px 24px 24px minmax(0, 1fr);
+    align-items: center;
+    min-height: 28px;
+    border-bottom: 1px solid #000;
+    font-size: 15px;
+    line-height: 1.15;
+  }
+
+  .highlight:last-child {
+    border-bottom: 0;
+  }
+
+  .highlight__day {
+    font-weight: 700;
+  }
+
+  .highlight__icon,
+  .highlight__person {
+    text-align: center;
+  }
+
+  .highlight__title {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .title_bar .instance {
+    overflow: hidden;
+    max-width: 55%;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
 <div class="layout familyboard">
   <div class="familyboard__main">
 
@@ -29,7 +208,9 @@
 
               {% unless event.allDay %}
                 {% if event.icon != blank %}
-                  <span class="event__icon">{{ event.icon }}</span>
+                  <span class="event__icon">
+                    {{ event.icon }}
+                  </span>
                 {% endif %}
               {% endunless %}
             </div>
@@ -49,7 +230,10 @@
         {% for event in ongoing %}
           <div class="ongoing-event">
             <div class="ongoing-event__title">
-              <span>{{ event.typeIcon }}</span>
+              {% if event.typeIcon != blank %}
+                <span>{{ event.typeIcon }}</span>
+              {% endif %}
+
               <span>{{ event.personIcon }}</span>
               <span>{{ event.title }}</span>
             </div>
@@ -60,24 +244,39 @@
           </div>
         {% endfor %}
       {% else %}
-        <div class="panel__empty">Aucun événement long</div>
+        <div class="panel__empty">
+          Aucun événement long
+        </div>
       {% endif %}
     </section>
 
     <section class="panel panel--next-week">
-      <div class="panel__title">Next Week</div>
+      <div class="panel__title">Semaine prochaine</div>
 
       {% if nextWeek.highlights.size > 0 %}
         {% for event in nextWeek.highlights %}
           <div class="highlight">
-            <span class="highlight__day">{{ event.day }}</span>
-            <span class="highlight__icon">{{ event.icon }}</span>
-            <span class="highlight__person">{{ event.personIcon }}</span>
-            <span class="highlight__title">{{ event.title }}</span>
+            <span class="highlight__day">
+              {{ event.day }}
+            </span>
+
+            <span class="highlight__icon">
+              {{ event.icon }}
+            </span>
+
+            <span class="highlight__person">
+              {{ event.personIcon }}
+            </span>
+
+            <span class="highlight__title">
+              {{ event.title }}
+            </span>
           </div>
         {% endfor %}
       {% else %}
-        <div class="panel__empty">Rien à signaler</div>
+        <div class="panel__empty">
+          Rien à signaler
+        </div>
       {% endif %}
     </section>
 
