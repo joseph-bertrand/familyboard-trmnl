@@ -1,58 +1,39 @@
 <div class="layout familyboard">
-  <div class="familyboard__main">
-
+  <main class="familyboard__main">
     {% for day in days %}
       <section class="day">
-        <div class="day__header">
+        <header class="day__header">
           <span class="day__label">{{ day.label }}</span>
           <span class="day__date">{{ day.date }}</span>
-        </div>
+        </header>
 
         <div class="day__events">
           {% for event in day.events %}
             <div class="event">
               <span class="event__time">
                 {% if event.allDay %}
-                  {{ event.icon }}
+                  Journée
                 {% else %}
                   {{ event.displayTime }}
                 {% endif %}
               </span>
 
-              <span class="event__person">
-                {{ event.personIcon }}
-              </span>
-
-              <span class="event__title">
-                {{ event.title }}
-              </span>
-
-              {% unless event.allDay %}
-                {% if event.icon != blank %}
-                  <span class="event__icon">{{ event.icon }}</span>
-                {% endif %}
-              {% endunless %}
+              <span class="event__title">{{ event.title }}</span>
             </div>
           {% endfor %}
         </div>
       </section>
     {% endfor %}
-
-  </div>
+  </main>
 
   <aside class="familyboard__sidebar">
-
     <section class="panel panel--ongoing">
       <div class="panel__title">En cours</div>
 
       {% if ongoing.size > 0 %}
         {% for event in ongoing %}
           <div class="ongoing-event">
-            <div class="ongoing-event__title">
-              <span>{{ event.typeIcon }}</span>
-              <span>{{ event.personIcon }}</span>
-              <span>{{ event.title }}</span>
-            </div>
+            <div class="ongoing-event__title">{{ event.title }}</div>
 
             <div class="ongoing-event__meta">
               {{ event.progress }} · fin {{ event.ends }}
@@ -71,8 +52,6 @@
         {% for event in nextWeek.highlights %}
           <div class="highlight">
             <span class="highlight__day">{{ event.day }}</span>
-            <span class="highlight__icon">{{ event.icon }}</span>
-            <span class="highlight__person">{{ event.personIcon }}</span>
             <span class="highlight__title">{{ event.title }}</span>
           </div>
         {% endfor %}
@@ -80,11 +59,9 @@
         <div class="panel__empty">Rien à signaler</div>
       {% endif %}
     </section>
-
   </aside>
 </div>
 
 <div class="title_bar">
   <span class="title">FamilyBoard</span>
-  <span class="instance">{{ generatedAt }}</span>
 </div>
