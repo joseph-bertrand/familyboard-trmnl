@@ -1,32 +1,34 @@
 .familyboard {
   display: grid;
-  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
   width: 100%;
   height: 100%;
-  gap: 12px;
+  gap: 10px;
 }
 
 .familyboard__main {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 6px;
+  gap: 5px;
+  padding-left: 5px;
 }
 
 .familyboard__sidebar {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 12px;
+  gap: 10px;
   border-left: 2px solid #000;
-  padding-left: 12px;
+  padding-left: 10px;
+  padding-right: 3px;
 }
 
 .day {
   flex: 1;
   min-height: 0;
-  border-bottom: 1px solid #000;
   padding-bottom: 5px;
+  border-bottom: 1px solid #000;
 }
 
 .day:last-child {
@@ -37,19 +39,23 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 3px;
 }
 
 .day__label {
-  font-size: 20px;
+  overflow: hidden;
+  font-size: 19px;
   font-weight: 700;
+  line-height: 1.1;
+  text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 .day__date {
-  font-size: 13px;
+  flex: 0 0 auto;
+  font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -57,43 +63,40 @@
 .day__events {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .event {
   display: grid;
-  grid-template-columns: 56px 28px minmax(0, 1fr) 24px;
-  align-items: center;
-  min-height: 24px;
-  font-size: 17px;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: baseline;
+  min-height: 23px;
+  font-size: 16px;
   line-height: 1.15;
 }
 
 .event__time {
-  padding-left: 2px;
+  padding-left: 1px;
   font-weight: 700;
   white-space: nowrap;
 }
 
-.event__person,
-.event__icon {
-  text-align: center;
-}
-
 .event__title {
   overflow: hidden;
+  padding-left: 4px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .panel {
+  min-width: 0;
   min-height: 0;
 }
 
 .panel--ongoing {
   flex: 0 0 auto;
-  padding-bottom: 10px;
+  padding-bottom: 9px;
   border-bottom: 2px solid #000;
 }
 
@@ -102,19 +105,22 @@
 }
 
 .panel__title {
-  margin-bottom: 8px;
-  font-size: 20px;
+  margin-bottom: 7px;
+  font-size: 17px;
   font-weight: 700;
+  line-height: 1.05;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .panel__empty {
-  font-size: 15px;
+  font-size: 13px;
   font-style: italic;
+  line-height: 1.2;
 }
 
 .ongoing-event {
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 }
 
 .ongoing-event:last-child {
@@ -122,28 +128,29 @@
 }
 
 .ongoing-event__title {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 17px;
+  overflow: hidden;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .ongoing-event__meta {
-  margin-top: 3px;
-  padding-left: 4px;
-  font-size: 14px;
+  margin-top: 4px;
+  font-size: 12px;
   font-weight: 500;
+  line-height: 1.15;
 }
 
 .highlight {
   display: grid;
-  grid-template-columns: 58px 22px 22px minmax(0, 1fr);
-  align-items: center;
-  min-height: 34px;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: start;
+  gap: 5px;
+  min-height: 31px;
+  padding: 4px 0;
   border-bottom: 1px solid #000;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.1;
 }
 
@@ -153,25 +160,19 @@
 
 .highlight__day {
   font-weight: 700;
-}
-
-.highlight__icon,
-.highlight__person {
-  text-align: center;
+  white-space: nowrap;
 }
 
 .highlight__title {
-  overflow: visible;
+  display: -webkit-box;
+  overflow: hidden;
   font-weight: 600;
   line-height: 1.1;
-  text-overflow: clip;
-  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.title_bar .instance {
-  overflow: hidden;
-  max-width: 55%;
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.title_bar .title {
+  font-weight: 700;
 }
