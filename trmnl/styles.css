@@ -144,13 +144,13 @@
 
 .highlight {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 72px minmax(0, 1fr);
   align-items: start;
-  gap: 5px;
+  column-gap: 8px;
   min-height: 31px;
   padding: 4px 0;
   border-bottom: 1px solid #000;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.1;
 }
 
@@ -159,6 +159,9 @@
 }
 
 .highlight__day {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
