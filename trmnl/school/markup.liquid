@@ -1,0 +1,260 @@
+<style>
+.school-schedule {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  color: #000;
+}
+
+.school-header {
+  padding: 2px 4px 4px;
+}
+
+.school-header__name {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.school-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.school-today {
+  min-width: 0;
+  padding: 9px 12px 4px 4px;
+}
+
+.school-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 9px 4px 4px 12px;
+  border-left: 2px solid #000;
+}
+
+.section-heading {
+  margin-bottom: 7px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.section-heading--small {
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.today-courses {
+  display: flex;
+  flex-direction: column;
+}
+
+.today-course {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 10px;
+  min-height: 42px;
+  padding: 5px 0;
+  border-bottom: 1px solid #000;
+}
+
+.today-course__content {
+  min-width: 0;
+}
+
+.today-course:last-child {
+  border-bottom: 0;
+}
+
+.today-course__time {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.today-course__subject {
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-course__meta {
+  overflow: hidden;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.next-course-panel {
+  padding-bottom: 9px;
+  border-bottom: 2px solid #000;
+}
+
+.next-course__subject {
+  overflow: hidden;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.next-course__delay {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.next-course__room,
+.tomorrow-panel__date,
+.panel-empty,
+.no-school__next {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tomorrow-panel {
+  flex: 1;
+  min-height: 0;
+  padding-top: 9px;
+}
+
+.tomorrow-panel__date {
+  margin-top: -3px;
+  margin-bottom: 5px;
+}
+
+.tomorrow-course {
+  display: grid;
+  grid-template-columns: 39px minmax(0, 1fr) auto;
+  gap: 5px;
+  min-height: 27px;
+  padding: 4px 0;
+  border-bottom: 1px solid #000;
+  font-size: 11px;
+  line-height: 1.05;
+}
+
+.tomorrow-course:last-child {
+  border-bottom: 0;
+}
+
+.tomorrow-course__time,
+.tomorrow-course__subject {
+  font-weight: 700;
+}
+
+.tomorrow-course__subject {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tomorrow-course__room {
+  white-space: nowrap;
+}
+
+.no-school {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 240px;
+  text-align: center;
+}
+
+.no-school__title {
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.title_bar .title {
+  font-weight: 700;
+}
+</style>
+
+<div class="layout school-schedule">
+  <header class="school-header">
+    <div class="school-header__name">{{ school }}</div>
+  </header>
+
+  <div class="school-grid">
+    <main class="school-today">
+      <div class="section-heading">{{ today.label }}</div>
+
+      {% if today.hasCourses %}
+        <div class="today-courses">
+          {% for course in today.courses %}
+            <article class="today-course">
+              <div class="today-course__time">{{ course.start }}–{{ course.end }}</div>
+              <div class="today-course__content">
+                <div class="today-course__subject">{{ course.subject }}</div>
+                <div class="today-course__meta">
+                  {% if course.teacher != "" %}{{ course.teacher }}{% endif %}
+                  {% if course.teacher != "" and course.room != "" %} — {% endif %}
+                  {% if course.room != "" %}Salle {{ course.room }}{% endif %}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-school">
+          <div class="no-school__title">{{ today.emptyMessage }}</div>
+          <div class="no-school__next">Prochaine journée : {{ tomorrow.weekday }}</div>
+        </div>
+      {% endif %}
+    </main>
+
+    <aside class="school-sidebar">
+      <section class="next-course-panel">
+        <div class="section-heading section-heading--small">Prochain cours</div>
+        {% if nextCourse %}
+          <div class="next-course__subject">{{ nextCourse.subject }}</div>
+          <div class="next-course__delay">{{ nextCourse.timing }}</div>
+          {% if nextCourse.room != "" %}
+            <div class="next-course__room">Salle {{ nextCourse.room }}</div>
+          {% endif %}
+        {% else %}
+          <div class="panel-empty">Aucun autre cours aujourd’hui</div>
+        {% endif %}
+      </section>
+
+      <section class="tomorrow-panel">
+        <div class="section-heading section-heading--small">
+          {{ tomorrow.label }}
+        </div>
+        <div class="tomorrow-panel__date">{{ tomorrow.date }}</div>
+
+        <div class="tomorrow-courses">
+          {% for course in tomorrow.courses %}
+            <div class="tomorrow-course">
+              <span class="tomorrow-course__time">{{ course.start }}</span>
+              <span class="tomorrow-course__subject">{{ course.subject }}</span>
+              {% if course.room != "" %}
+                <span class="tomorrow-course__room">S. {{ course.room }}</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="title_bar">
+  <span class="title">Emploi du temps · {{ className }}</span>
+</div>

@@ -1,0 +1,20 @@
+{
+  "name": "familyboard-trmnl",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "TZ=Europe/Zurich node --test",
+    "gas:status": "clasp status",
+    "gas:push": "clasp push",
+    "gas:pull": "clasp pull"
+  },
+  "devDependencies": {
+    "@google/clasp": "3.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@google/clasp": "3.3.0"
+  }
+}

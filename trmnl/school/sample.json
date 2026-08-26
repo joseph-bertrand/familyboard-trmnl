@@ -1,0 +1,39 @@
+{
+  "school": "École TOEPFFER",
+  "className": "9e H",
+  "today": {
+    "label": "Aujourd’hui",
+    "weekday": "Mardi",
+    "date": "25 août",
+    "hasCourses": true,
+    "emptyMessage": "",
+    "courses": [
+      { "start": "08:15", "end": "09:05", "subject": "Allemand", "teacher": "VESCOVI F.", "room": "8" },
+      { "start": "09:10", "end": "10:00", "subject": "Allemand", "teacher": "VESCOVI F.", "room": "8" },
+      { "start": "10:15", "end": "11:05", "subject": "Arts plastiques", "teacher": "JORAT C.", "room": "3 Arts" },
+      { "start": "11:10", "end": "12:00", "subject": "Théâtre", "teacher": "LA ROCCA A.", "room": "3 Arts" },
+      { "start": "13:30", "end": "14:20", "subject": "Histoire-Géographie", "teacher": "JORAT C.", "room": "12" },
+      { "start": "14:25", "end": "15:15", "subject": "Français", "teacher": "BEN NJEMA S.", "room": "13" },
+      { "start": "15:30", "end": "16:20", "subject": "Français", "teacher": "BEN NJEMA S.", "room": "13" },
+      { "start": "16:25", "end": "17:15", "subject": "Étude", "teacher": "JORAT C.", "room": "3 Arts" }
+    ]
+  },
+  "tomorrow": {
+    "label": "Demain",
+    "weekday": "Mercredi",
+    "date": "26 août",
+    "courses": [
+      { "start": "08:15", "subject": "Français", "room": "14" },
+      { "start": "09:10", "subject": "Mathématiques", "room": "16" },
+      { "start": "10:15", "subject": "Histoire-Géographie", "room": "15" },
+      { "start": "11:10", "subject": "Allemand", "room": "8" },
+      { "start": "12:55", "subject": "Étude", "room": "" },
+      { "start": "13:30", "subject": "Étude", "room": "3 Arts" }
+    ]
+  },
+  "nextCourse": {
+    "subject": "Arts plastiques",
+    "room": "3 Arts",
+    "timing": "dans 13 min"
+  }
+}

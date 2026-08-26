@@ -32,9 +32,17 @@ class DateUtils {
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
+  static formatWeekdayShort(date) {
+    const value = date.toLocaleDateString(CONFIG.locale, {
+      weekday: "short",
+      timeZone: CONFIG.timeZone
+    });
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
   static formatDate(date) {
     const value = date.toLocaleDateString(CONFIG.locale, {
-      weekday: "long",
       day: "numeric",
       month: "short",
       timeZone: CONFIG.timeZone

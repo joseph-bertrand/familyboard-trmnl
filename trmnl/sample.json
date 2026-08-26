@@ -1,13 +1,7 @@
 {
-  "generatedAt": "2026-07-14T09:42:00",
-
   "ongoing": [
     {
       "title": "Camp d'été",
-      "person": "ruben",
-      "personIcon": "🤓",
-      "type": "camp",
-      "typeIcon": "🏕️",
       "progress": "J3/5",
       "ends": "Samedi"
     }
@@ -16,19 +10,15 @@
   "days": [
     {
       "label": "Aujourd'hui",
-      "date": "Mardi 14 juillet",
+      "date": "14 juillet",
       "events": [
         {
           "title": "Orthodontiste",
-          "personIcon": "🤓",
-          "icon": "🩺",
           "displayTime": "09:00",
           "allDay": false
         },
         {
           "title": "Football",
-          "personIcon": "👦",
-          "icon": "⚽",
           "displayTime": "16:30",
           "allDay": false
         }
@@ -36,12 +26,10 @@
     },
     {
       "label": "Demain",
-      "date": "Mercredi 15 juillet",
+      "date": "15 juillet",
       "events": [
         {
           "title": "Anniversaire Mamie",
-          "personIcon": "👨‍👩‍👦‍👦",
-          "icon": "🎂",
           "displayTime": "",
           "allDay": true
         }
@@ -50,16 +38,13 @@
   ],
 
   "nextWeek": {
-    "count": 14,
     "highlights": [
       {
-        "day": "Lundi",
-        "icon": "🏫",
+        "day": "Lun.",
         "title": "Rentrée scolaire"
       },
       {
-        "day": "Jeudi",
-        "icon": "🎂",
+        "day": "Jeu.",
         "title": "Anniversaire Mamie"
       }
     ]

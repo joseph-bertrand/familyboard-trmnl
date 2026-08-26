@@ -9,16 +9,16 @@ class Formatter {
    * @param {Array<Object>} events Events returned by CalendarService.
    * @returns {Object}
    */
-  static buildDashboard(events) {
+  static buildDashboard(events, now = new Date()) {
     const normalizedEvents = events
       .map((event) => this.normalizeEvent(event))
       .sort((first, second) => first.start - second.start);
 
     return {
-      generatedAt: new Date().toISOString(),
-      ongoing: this.buildOngoing(normalizedEvents),
-      days: this.buildDays(normalizedEvents),
-      nextWeek: this.buildNextWeek(normalizedEvents)
+      generatedAt: now.toISOString(),
+      ongoing: this.buildOngoing(normalizedEvents, now),
+      days: this.buildDays(normalizedEvents, now),
+      nextWeek: this.buildNextWeek(normalizedEvents, now)
     };
   }
 
@@ -54,9 +54,7 @@ class Formatter {
    * @param {Array<Object>} events
    * @returns {Array<Object>}
    */
-  static buildOngoing(events) {
-    const now = new Date();
-
+  static buildOngoing(events, now = new Date()) {
     return events
       .filter((event) =>
         event.multiDay &&
@@ -88,9 +86,9 @@ class Formatter {
    * @param {Array<Object>} events
    * @returns {Array<Object>}
    */
-  static buildDays(events) {
+  static buildDays(events, now = new Date()) {
     const days = [];
-    const today = DateUtils.startOfDay(new Date());
+    const today = DateUtils.startOfDay(now);
 
     for (let offset = 0; offset < CONFIG.daysToDisplay; offset++) {
       const date = DateUtils.addDays(today, offset);
@@ -135,8 +133,8 @@ class Formatter {
    * @param {Array<Object>} events
    * @returns {Object}
    */
-  static buildNextWeek(events) {
-    const nextMonday = this.getNextMonday(new Date());
+  static buildNextWeek(events, now = new Date()) {
+    const nextMonday = this.getNextMonday(now);
     const followingMonday = DateUtils.addDays(nextMonday, 7);
 
     const nextWeekEvents = events.filter((event) =>
@@ -161,7 +159,7 @@ class Formatter {
       .slice(0, 5)
       .map((event) => ({
         title: event.title,
-        day: DateUtils.formatWeekday(event.start),
+        day: DateUtils.formatWeekdayShort(event.start),
         personIcon: event.personIcon,
         icon: event.typeIcon || CONFIG.eventTypes.allDay
       }));
@@ -188,7 +186,7 @@ class Formatter {
       return "Demain";
     }
 
-    return DateUtils.formatWeekday(date);
+    return DateUtils.formatWeekdayShort(date);
   }
 
   /**
